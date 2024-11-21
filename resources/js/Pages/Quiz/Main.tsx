@@ -2,7 +2,21 @@ import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { FormEventHandler, useState } from 'react';
 
-export default function Main({ quizzes }) {
+interface Quiz {
+    id: number;
+    title: string;
+    start_date: string;
+    time_limit: number;
+    pass_mark: number;
+}
+
+// Define the type for the component props
+interface MainProps {
+    quizzes: Quiz[];
+}
+
+
+export default function Main({ quizzes } : MainProps) {
     const user = usePage().props.auth.user;
     const {
         data,
@@ -16,7 +30,7 @@ export default function Main({ quizzes }) {
         password: '',
     });
 
-    const deletePost = (id) => {
+    const deletePost = (id:string) => {
         destroy(route('quiz.destroy',id), {
             preserveScroll: true,
             onFinish: () => reset(),
@@ -66,7 +80,7 @@ export default function Main({ quizzes }) {
                                         Pass Mark: {quiz.pass_mark}
                                     </p>
                                     {/* View Profile Button */}
-                                    {user.roles === 'Administrator' ? (
+                                    {user.roles == 'Administrator' ? (
                                         <div className="mt-4 text-center">
                                             <Link
                                                 href={`/quiz/${quiz.id}/edit`}

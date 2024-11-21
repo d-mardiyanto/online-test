@@ -21,11 +21,7 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-    ];
-
-    // If 'options' is JSON, you can cast it
-    protected $casts = [
-        'roles' => 'array',
+        'roles',
     ];
 
     /**

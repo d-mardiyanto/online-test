@@ -1,7 +1,22 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 
-export default function Main({ candidates }) {
+// Define the type for a single candidate
+interface Candidate {
+    id: number;
+    name: string;
+    email: string;
+    phone: string;
+    status: string;
+    photo?: string; // Optional field
+}
+
+// Define the type for the component props
+interface MainProps {
+    candidates: Candidate[];
+}
+
+export default function Main({ candidates }: MainProps) {
     return (
         <AuthenticatedLayout
             header={
@@ -44,16 +59,10 @@ export default function Main({ candidates }) {
                                     {/* View Profile Button */}
                                     <div className="mt-4 text-center">
                                         <Link
-                                            href={`/candidates/${candidate.id}`}
+                                            href={`/candidate/${candidate.id}/edit`}
                                             className="mx-1 inline-block px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded hover:bg-blue-700"
                                         >
                                             View
-                                        </Link>
-                                        <Link
-                                            href={`/candidates/${candidate.id}`}
-                                            className="mx-1 inline-block px-4 py-2 text-sm font-medium text-white bg-green-600 rounded hover:bg-blue-700"
-                                        >
-                                            Create Account
                                         </Link>
                                     </div>
                                 </div>

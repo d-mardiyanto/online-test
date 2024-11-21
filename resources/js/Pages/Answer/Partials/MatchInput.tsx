@@ -1,5 +1,5 @@
 import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler, useState, useEffect } from 'react';
+import { FormEventHandler, useState, useEffect, ChangeEvent } from 'react';
 
 
 export default function MatchInput() {
@@ -8,12 +8,11 @@ export default function MatchInput() {
         input2: ""
     });
     // Handle changes for input fields
-    const handleInputChange = (e) => {
+    type FormFields = "input1" | "input2";
+
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        setData((prevState) => ({
-            ...prevState,
-            [name]: value,
-        }));
+        setData(name as FormFields, value);
     };
 
     const submit: FormEventHandler = (e) => {

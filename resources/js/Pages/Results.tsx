@@ -1,7 +1,24 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link } from '@inertiajs/react';
 
-export default function Main({ results }) {
+interface Result {
+    id: number;
+    title: string;
+    work_date: string;
+    start_time: string;
+    end_time: string;
+    time_limit: number;
+    score: number;
+    pass_mark: number;
+}
+
+// Define the type for the component props
+interface MainProps {
+    results: Result[];
+}
+
+
+export default function Main({ results } : MainProps) {
     return (
         <AuthenticatedLayout
             header={
@@ -24,22 +41,27 @@ export default function Main({ results }) {
                                     key={result.id}
                                     className="p-4 bg-gray-100 border border-gray-300 rounded-lg shadow"
                                 >
-                                    <img
-                                        src={result.photo || '/storage/user.png'}
-                                        alt={result.name}
-                                        className="w-24 h-24 rounded-full mx-auto mb-4"
-                                    />
                                     <h3 className="text-lg font-medium text-gray-800 text-center">
-                                        {result.name}
+                                        {result.title}
                                     </h3>
                                     <p className="text-gray-600 text-center">
-                                        {result.email}
+                                        {result.work_date}
                                     </p>
                                     <p className="text-gray-500 text-sm text-center">
-                                        {result.phone}
+                                        Done In : {result.time_limit} Minutes
+                                    </p>
+                                    <p className="text-gray-500 text-sm text-center">
+                                        Score : {result.score}
+                                    </p>
+                                    <p className="text-gray-500 text-sm text-center">
+                                        Pass Mark : {result.pass_mark}
                                     </p>
                                     <p className="text-gray-700 text-sm text-center mt-2">
-                                        Status: {result.status}
+                                        {result.score < result.pass_mark ? (
+                                            <b>Status : Not Pass</b>
+                                        ) : (
+                                            <b>Status : Pass</b>
+                                        )}
                                     </p>
                                 </div>
                             ))}

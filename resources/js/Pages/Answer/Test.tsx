@@ -1,9 +1,8 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler, useState,useEffect } from 'react';
-import StartTime from './Partials/StartTime';
-import MatchInput from './Partials/MatchInput';
+import { FormEventHandler, useState, useEffect } from 'react';
 import StartQuiz from './Partials/StartQuiz';
+import ElapsedTime from './Partials/ElapsedTime';
 
 interface Quiz {
     id: number;
@@ -18,19 +17,32 @@ interface Quiz {
 
 interface Questions {
     id: number;
+    quiz_id: number;
+    order_number: number;
     content: string;
     type: string;
     options: [];
-    correct_answer: [];
+    correct_answer: string;
+    [key: string]: any;
+}
+
+interface Results {
+    id: number;
+    quiz_id:number;
+    work_date: string;
+    start_time: string;
+    end_time: string;
+    score: number;
 }
 
 // Define the type for the component props
 interface MainProps {
     quiz: Quiz;
-    questions: Questions;
+    questions: Questions[];
+    result:Results;
 }
 
-export default function QuestionForm({ quiz, questions} : MainProps) {
+export default function QuestionForm({ quiz, questions, result} : MainProps) {
     return (
         <AuthenticatedLayout
             header={
@@ -46,13 +58,13 @@ export default function QuestionForm({ quiz, questions} : MainProps) {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                         {/* Left Side: Form */}
                         <div className="bg-white p-6 rounded shadow">
-                            
+
                             <h3 className="text-lg font-medium mb-4">Questions - {quiz.title}</h3>
-                            <MatchInput/>
+                            <StartQuiz quiz={quiz} questions={questions} />
                         </div>
 
                         {/* Right Side: Accordion */}
-                        <StartTime quiz={quiz} />
+                        <ElapsedTime quiz={quiz} result={result} />
                     </div>
                 </div>
             </div>

@@ -107,6 +107,10 @@ class CandidateController extends Controller
      */
     public function edit(string $id)
     {
+        $candidate = Candidates::find($id);
+        $data = [
+            'candidate'=>$candidate
+        ];
         return Inertia::render('Candidate/Edit',$data);
     }
 

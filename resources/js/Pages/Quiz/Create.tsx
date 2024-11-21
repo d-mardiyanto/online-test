@@ -1,7 +1,7 @@
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler, useState, ChangeEvent } from 'react';
 
 export default function Main() {
     const { data, setData, post, processing, errors, reset } = useForm({
@@ -16,13 +16,11 @@ export default function Main() {
 
     const [action, setAction] = useState(""); // Tracks which button was clicked
 
-    const handleInputChange = (e) => {
+    type FormFields = "title" | "description" | "start_date" | "exp_date" | "time_limit" | "pass_mark" | "attempt";
+
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        // setdata((prevState) => ({
-        //     ...prevState,
-        //     [name]: value,
-        // }));
-        setData(name, value)
+        setData(name as FormFields, value);
     };
 
 
@@ -73,7 +71,7 @@ export default function Main() {
                                         value={data.description}
                                         onChange={handleInputChange}
                                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                        rows="3"
+                                        rows={3}
                                     ></textarea>
                                 </div>
                                 <div>
@@ -134,7 +132,7 @@ export default function Main() {
                                         value={data.attempt}
                                         onChange={(e) => {
                                             const value = Math.max(1, parseInt(e.target.value, 10) || 1); // Ensure the value is at least 1
-                                            setdata((prevState) => ({
+                                            setData((prevState) => ({
                                                 ...prevState,
                                                 attempt: value,
                                             }));

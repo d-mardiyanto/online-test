@@ -1,5 +1,5 @@
-import { useForm } from '@inertiajs/react';
-import { FormEventHandler, useRef,useState, useEffect } from 'react';
+import { Head, Link, useForm } from '@inertiajs/react';
+import { FormEventHandler, useState, useEffect } from 'react';
 
 
 interface Quiz {
@@ -13,35 +13,49 @@ interface Quiz {
     attempt: number;
 }
 
+interface Result {
+    id: number;
+    work_date: string;
+    start_time: string;
+    end_time: string;
+    score: number;
+}
+
 // Define the type for the component props
 interface MainProps {
     quiz: Quiz;
+    result:Result;
 }
-
-export default function StartTime({ quiz } : MainProps) {
-    const { data, setData, post, processing, errors, reset } = useForm({
+export default function ElapsedTime({ quiz, result } : MainProps) {
+    const { data, setData, put, processing, errors, reset } = useForm({
         quiz_id: quiz.id,
-        work_date: "", // Default to single choice
-        start_time: "",
         end_time: "",
         score: "",
     });
+
     const [timeLeft, setTimeLeft] = useState<number>(0);
-    // Initialize time left based on quiz expiration date and time limit
-    // Timer logic: Calculate remaining time based on quiz.time_limit
+
+    // Timer logic: Calculate remaining time based on result.start_time
     useEffect(() => {
-        const endTime = Date.now() + quiz.time_limit * 60 * 1000; // Dynamic: quiz.time_limit in minutes
+        if (!result.start_time) {
+            console.error("Result start_time is missing");
+            return;
+        }
+
+        const startTime = new Date(result.start_time).getTime(); // Convert to timestamp
+        const endTime = startTime + quiz.time_limit * 60 * 1000; // Add quiz.time_limit in milliseconds
 
         const interval = setInterval(() => {
             const remainingTime = endTime - Date.now();
             setTimeLeft(remainingTime > 0 ? remainingTime : 0);
+
             if (remainingTime <= 0) {
                 clearInterval(interval); // Stop timer if time runs out
             }
         }, 1000);
 
         return () => clearInterval(interval); // Cleanup interval on component unmount
-    }, [quiz.time_limit]);
+    }, [quiz.time_limit, result.start_time]);
 
     // Helper function to format time
     const formatTime = (milliseconds:number) => {
@@ -51,30 +65,25 @@ export default function StartTime({ quiz } : MainProps) {
         return `${minutes}:${seconds.toString().padStart(2, "0")}`;
     };
 
-    const startQuiz: FormEventHandler = (e) => {
-        e.preventDefault();
-
-        post(route('results.store'), {
+    const endQuiz = () => {
+        put(route("results.update",result.id), {
             onFinish: () => reset(),
         });
     };
 
     return (
         <div className="bg-white p-6 rounded shadow">
-            <h3 className="text-lg font-medium mb-4">Time Left : {timeLeft > 0 ? formatTime(timeLeft) : "Time's up!"}</h3>
+            <h3 className="text-center text-lg font-medium mb-4">
+                Time Left : {timeLeft > 0 ? formatTime(timeLeft) : "Time's up!"}
+            </h3>
             <div className="text-center space-y-4">
-                Start Date : {quiz.start_date} - End Date :{quiz.exp_date} <br></br>
-                Time Limit : {quiz.time_limit} Minutes <br></br>
+                Start Time : {result.start_time} - End Time : {result.end_time}
+                <br />
+                Time Limit : {quiz.time_limit} Minutes
+                <br />
                 Pass Mark : {quiz.pass_mark}
             </div>
-            <form onSubmit={startQuiz}>
-                <button
-                    type="submit"
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mt-3"
-                >
-                    Start Test
-                </button>
-            </form>
         </div>
     );
 }
+

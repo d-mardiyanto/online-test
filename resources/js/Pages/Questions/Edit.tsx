@@ -1,8 +1,37 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler, useState, ChangeEvent } from 'react';
 
-export default function QuestionForm({ quiz, questions, session }) {
+
+interface Quiz {
+    id: number;
+    title: string;
+    description: string;
+    start_date: string;
+    exp_date: string;
+    time_limit: number;
+    pass_mark: number;
+    attempt: number;
+}
+
+interface Questions {
+    id: number;
+    quiz_id:number;
+    order_number:number;
+    content: string;
+    type: string;
+    options: [];
+    correct_answer:string;
+    [key: string]: any;
+}
+
+// Define the type for the component props
+interface MainProps {
+    quiz: Quiz;
+    questions:Questions[];
+}
+
+export default function QuestionForm({ quiz, questions } : MainProps) {
     const { data, setData, post, processing, errors, reset } = useForm({
         quiz_id: quiz.id,
         type: "radio", // Default to single choice
@@ -13,7 +42,7 @@ export default function QuestionForm({ quiz, questions, session }) {
     });
 
     // Handle changes for input fields
-    const handleInputChange = (e) => {
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
         setData((prevState) => ({
             ...prevState,
@@ -22,7 +51,7 @@ export default function QuestionForm({ quiz, questions, session }) {
     };
 
     // Handle option changes
-    const handleOptionChange = (index, value) => {
+    const handleOptionChange = (index: number, value: string) => {
         const updatedOptions = [...data.options];
         updatedOptions[index].text = value;
         setData((prevState) => ({
@@ -40,11 +69,9 @@ export default function QuestionForm({ quiz, questions, session }) {
     };
 
     // Remove an option
-    const removeOption = (index) => {
+    const removeOption = (index: number) => {
         const updatedOptions = data.options.filter((_, i) => i !== index);
-        const updatedCorrectAnswer = data.correct_answer.filter(
-            (_, i) => i !== index
-        );
+        const updatedCorrectAnswer = data.correct_answer.filter((_, i) => i !== index);
         setData((prevState) => ({
             ...prevState,
             options: updatedOptions,
@@ -52,27 +79,27 @@ export default function QuestionForm({ quiz, questions, session }) {
         }));
     };
 
-    // Handle correct answer selection for radio and checkbox types
-    const handleCorrectAnswerChange = (value) => {
-        if (data.type === "radio") {
-            setData((prevState) => ({
-                ...prevState,
-                correct_answer: [value],
-            }));
-        }
-    };
+    // const handleCorrectAnswerChange = (value: string) => {
+    //     if (data.type === "radio") {
+    //         setData((prevState) => ({
+    //             ...prevState,
+    //             correct_answer: [value],
+    //         }));
+    //     }
+    // };
 
-    const handleCheckboxAnswerChange = (value) => {
-        setData((prevState) => {
-            const updatedCorrectAnswer = prevState.correct_answer.includes(value)
-                ? prevState.correct_answer.filter((ans) => ans !== value) // Unselect
-                : [...prevState.correct_answer, value]; // Select
-            return {
-                ...prevState,
-                correct_answer: updatedCorrectAnswer,
-            };
-        });
-    };
+    // const handleCheckboxAnswerChange = (value: string) => {
+    //     setData((prevState : Questions) => {
+    //         const updatedCorrectAnswer = prevState.correct_answer.includes(value)
+    //             ? prevState.correct_answer.filter((ans) => ans !== value) // Unselect
+    //             : [...prevState.correct_answer, value]; // Select
+    //         return {
+    //             ...prevState,
+    //             correct_answer: updatedCorrectAnswer,
+    //         };
+    //     });
+    // };
+
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
@@ -139,7 +166,7 @@ export default function QuestionForm({ quiz, questions, session }) {
                                         name="content"
                                         value={data.content}
                                         onChange={handleInputChange}
-                                        rows="4"
+                                        rows={4}
                                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                                     />
                                 </div>
@@ -191,12 +218,6 @@ export default function QuestionForm({ quiz, questions, session }) {
                                                         type="radio"
                                                         name="correct_answer"
                                                         value={option.text}
-                                                        checked={
-                                                            data.correct_answer.includes(option.text)
-                                                        }
-                                                        onChange={() =>
-                                                            handleCorrectAnswerChange(option.text)
-                                                        }
                                                         className="mr-2"
                                                     />
                                                 ) : (
@@ -204,12 +225,6 @@ export default function QuestionForm({ quiz, questions, session }) {
                                                         type="checkbox"
                                                         name="correct_answer"
                                                         value={option.text}
-                                                        checked={
-                                                            data.correct_answer.includes(option.text)
-                                                        }
-                                                        onChange={() =>
-                                                            handleCheckboxAnswerChange(option.text)
-                                                        }
                                                         className="mr-2"
                                                     />
                                                 )}
@@ -239,7 +254,11 @@ export default function QuestionForm({ quiz, questions, session }) {
                                             className="w-full text-left px-4 py-2 bg-gray-100 hover:bg-gray-200"
                                             onClick={() => {
                                                 const element = document.getElementById(`question-${index}`);
-                                                element.classList.toggle('hidden');
+                                                if (element) {
+                                                    element.classList.toggle('hidden');
+                                                } else {
+                                                    console.error(`Element with ID 'question-${index}' not found.`);
+                                                }
                                             }}
                                         >
                                             {question.content}

@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Quizzes;
+use App\Models\Answer;
 use App\Models\Results;
+use App\Models\Quizzes;
+use App\Models\Questions;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -25,7 +27,10 @@ class ResultController extends Controller
      */
     public function index()
     {
-        $results = Results::where('user_id',auth()->id())->get();
+        $results = Results::select('results.*', 'quizzes.title','quizzes.pass_mark','quizzes.time_limit')
+                ->join('quizzes', 'results.quiz_id', '=', 'quizzes.id')
+                ->where('results.user_id', '=', auth()->id())
+                ->get();
         $data = [
             'results' => $results
         ];
@@ -84,7 +89,15 @@ class ResultController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $result = Results::find($id);
+        $quiz = Quizzes::find($result->quiz_id);
+        $question = Questions::where('quiz_id',$result->quiz_id)->get();
+        $data = [
+            'result'=>$result,
+            'quiz'=>$quiz,
+            'questions'=>$question
+        ];
+        return Inertia::render('Answer/Test',$data);
     }
 
     /**
@@ -129,6 +142,47 @@ class ResultController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Work Log deleted successfully !',
+        ]);
+    }
+
+    public function calculateScores()
+    {
+        $answers = Answers::with('question')->get(); // Fetch answers with related questions
+        $results = [];
+
+        // Group answers by quizzes
+        $groupedAnswers = $answers->groupBy('quiz_id');
+
+        foreach ($groupedAnswers as $quizId => $quizAnswers) {
+            $score = 0;
+            $correctCount = 0;
+            $wrongCount = 0;
+
+            foreach ($quizAnswers as $answer) {
+                $correctAnswer = json_decode($answer->question->correct_answer);
+                $userAnswer = json_decode($answer->answer);
+
+                // Check if the user's answer is correct
+                if ($userAnswer == $correctAnswer) {
+                    $score += 5; // Add points
+                    $correctCount++; // Count correct answers
+                } else {
+                    $score -= 3; // Subtract points
+                    $wrongCount++; // Count wrong answers
+                }
+            }
+
+            // Save results for this quiz
+            $results[$quizId] = [
+                'score' => $score,
+                'correct' => $correctCount,
+                'wrong' => $wrongCount,
+            ];
+        }
+
+        // Pass data to the frontend
+        return response()->json([
+            'results' => $results,
         ]);
     }
 }

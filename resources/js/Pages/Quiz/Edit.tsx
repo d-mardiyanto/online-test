@@ -1,9 +1,26 @@
 import PrimaryButton from '@/Components/PrimaryButton';
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, useForm } from '@inertiajs/react';
-import { FormEventHandler, useState } from 'react';
+import { FormEventHandler, useState, ChangeEvent } from 'react';
 
-export default function Main({quiz}) {
+
+interface Quiz {
+    id: number;
+    title: string;
+    description: string;
+    start_date: string;
+    exp_date: string;
+    time_limit: number;
+    pass_mark: number;
+    attempt: number;
+}
+
+// Define the type for the component props
+interface MainProps {
+    quiz: Quiz;
+}
+
+export default function Edit({ quiz }: MainProps) {
     const { data, setData, patch, processing, errors, reset } = useForm({
         title: quiz.title,
         description: quiz.description,
@@ -16,20 +33,18 @@ export default function Main({quiz}) {
 
     const [action, setAction] = useState(""); // Tracks which button was clicked
 
-    const handleInputChange = (e) => {
+    type FormFields = "title" | "description" | "start_date" | "exp_date" | "time_limit" | "pass_mark" | "attempt";
+
+    const handleInputChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        // setdata((prevState) => ({
-        //     ...prevState,
-        //     [name]: value,
-        // }));
-        setData(name, value)
+        setData(name as FormFields, value);
     };
 
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        patch(route('quiz.update',quiz.id), {
+        patch(route('quiz.update', quiz.id), {
             onFinish: () => reset(),
         });
     };
@@ -38,7 +53,7 @@ export default function Main({quiz}) {
         <AuthenticatedLayout
             header={
                 <h2 className="text-xl font-semibold leading-tight text-gray-800">
-                    Quizzes / Edit Quiz
+                    Quizzes / Create Quiz
                 </h2>
             }
         >
@@ -73,7 +88,7 @@ export default function Main({quiz}) {
                                         value={data.description}
                                         onChange={handleInputChange}
                                         className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 sm:text-sm"
-                                        rows="3"
+                                        rows={3}
                                     ></textarea>
                                 </div>
                                 <div>
@@ -134,7 +149,7 @@ export default function Main({quiz}) {
                                         value={data.attempt}
                                         onChange={(e) => {
                                             const value = Math.max(1, parseInt(e.target.value, 10) || 1); // Ensure the value is at least 1
-                                            setdata((prevState) => ({
+                                            setData((prevState) => ({
                                                 ...prevState,
                                                 attempt: value,
                                             }));
@@ -146,16 +161,16 @@ export default function Main({quiz}) {
                                     <button
                                         type="submit"
                                         onClick={() => setAction("save")}
-                                        className="me-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-green-700"
+                                        className="me-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
                                     >
-                                        Update Quiz
+                                        Save Quiz
                                     </button>
                                     <button
                                         type="submit"
                                         onClick={() => setAction("save_and_add_questions")}
                                         className="px-4 py-2 bg-green-600 text-white rounded hover:bg-blue-700"
                                     >
-                                        Update Quiz and Add Question
+                                        Save Quiz and Add Question
                                     </button>
                                 </div>
                             </form>

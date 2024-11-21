@@ -10,6 +10,8 @@ export default function Authenticated({
     children,
 }: PropsWithChildren<{ header?: ReactNode }>) {
     const user = usePage().props.auth.user;
+    console.log(user);
+    
 
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
@@ -26,7 +28,7 @@ export default function Authenticated({
                                 </Link>
                             </div>
 
-                            {user.roles === 'Administrator' ? (
+                            {user.roles == 'Administrator' ? (
                                 <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
                                     <NavLink
                                         href={route('dashboard')}
@@ -48,26 +50,26 @@ export default function Authenticated({
                                     </NavLink>
                                 </div>
                             ) : (
-                                    <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                                        <NavLink
-                                            href={route('dashboard')}
-                                            active={route().current('dashboard')}
-                                        >
+                                <div className="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
+                                    <NavLink
+                                        href={route('dashboard')}
+                                        active={route().current('dashboard')}
+                                    >
                                             Dashboard
-                                        </NavLink>
-                                        <NavLink
-                                            href={route('quiz')}
-                                            active={route().current('quiz')}
-                                        >
-                                            Take Exam
-                                        </NavLink>
-                                        <NavLink
-                                            href={route('results')}
-                                            active={route().current('results')}
-                                        >
-                                            Result
-                                        </NavLink>
-                                    </div>
+                                    </NavLink>
+                                    <NavLink
+                                        href={route('quiz')}
+                                        active={route().current('quiz')}
+                                    >
+                                        Take Exam
+                                    </NavLink>
+                                    <NavLink
+                                        href={route('results')}
+                                        active={route().current('results')}
+                                    >
+                                        Result
+                                    </NavLink>
+                                </div>
                             )}
                             
                         </div>
