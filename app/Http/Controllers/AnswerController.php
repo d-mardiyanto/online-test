@@ -46,7 +46,7 @@ class AnswerController extends Controller
             'quiz_id' => 'required|integer|exists:quizzes,id',
             'answers' => 'required|array',
             'answers.*.question_id' => 'required|integer|exists:questions,id',
-            'answers.*.answer' => 'required', // Validates both string and array answers
+            'answers.*.answer' => 'required', 
         ]);
 
         if ($validator->fails()) {
@@ -58,7 +58,6 @@ class AnswerController extends Controller
         $quizId = $request->input('quiz_id');
         $answers = $request->input('answers');
 
-        // Format answers for batch insert
         $formattedAnswers = collect($answers)->map(function ($answer) use ($userId, $quizId) {
             return [
                 'quiz_id' => $quizId,

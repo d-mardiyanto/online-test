@@ -35,14 +35,18 @@ interface Results {
     score: number;
 }
 
+interface Answer {
+    questions: Questions[];
+}
 // Define the type for the component props
 interface MainProps {
     quiz: Quiz;
     questions: Questions[];
     result:Results;
+    answer:Answer;
 }
 
-export default function QuestionForm({ quiz, questions, result} : MainProps) {
+export default function QuestionForm({ quiz, questions, result,answer} : MainProps) {
     return (
         <AuthenticatedLayout
             header={
@@ -60,7 +64,7 @@ export default function QuestionForm({ quiz, questions, result} : MainProps) {
                         <div className="bg-white p-6 rounded shadow">
 
                             <h3 className="text-lg font-medium mb-4">Questions - {quiz.title}</h3>
-                            <StartQuiz quiz={quiz} questions={questions} />
+                            <StartQuiz quiz={quiz} questions={questions} answers={answer} />
                         </div>
 
                         {/* Right Side: Accordion */}
