@@ -50,6 +50,12 @@ export default function Main({ results } : MainProps) {
                                         {result.quiz.title}
                                     </h3>
                                     <p className="text-gray-500 text-sm text-center">
+                                        Correct : {result.correct}
+                                    </p>
+                                    <p className="text-gray-500 text-sm text-center">
+                                        Wrong : {result.wrong}
+                                    </p>
+                                    <p className="text-gray-500 text-sm text-center">
                                         Score : {result.score}
                                     </p>
                                     <p className="text-gray-500 text-sm text-center">

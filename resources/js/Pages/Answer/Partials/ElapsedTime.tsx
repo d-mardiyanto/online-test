@@ -33,37 +33,32 @@ export default function ElapsedTime({ quiz, result } : MainProps) {
         score: "",
     });
 
-    const [timeLeft, setTimeLeft] = useState<number>(0);
+    const [timeLeft, setTimeLeft] = useState('');
 
     // Timer logic: Calculate remaining time based on result.start_time
     useEffect(() => {
-        if (!result.start_time) {
-            console.error("Result start_time is missing");
-            return;
-        }
+        const [hours, minutes, seconds] = result.start_time.split(':').map(Number);
+        const startDateTime = new Date();
+        startDateTime.setHours(hours, minutes, seconds);
 
-        const startTime = new Date(result.start_time).getTime(); // Convert to timestamp
-        const endTime = startTime + quiz.time_limit * 60 * 1000; // Add quiz.time_limit in milliseconds
-
+        const endDateTime = new Date(startDateTime.getTime() + quiz.time_limit * 60 * 1000);
         const interval = setInterval(() => {
-            const remainingTime = endTime - Date.now();
-            setTimeLeft(remainingTime > 0 ? remainingTime : 0);
+            const now:Date = new Date();
+            const diff:number = endDateTime.getTime() - now.getTime();
 
-            if (remainingTime <= 0) {
-                clearInterval(interval); // Stop timer if time runs out
+            if (diff <= 0) {
+                clearInterval(interval);
+                setTimeLeft('Time is up!');
+            } else {
+                const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const secs = Math.floor((diff % (1000 * 60)) / 1000);
+                setTimeLeft(`${mins}m ${secs}s`);
             }
         }, 1000);
 
-        return () => clearInterval(interval); // Cleanup interval on component unmount
+        return () => clearInterval(interval);
     }, [quiz.time_limit, result.start_time]);
 
-    // Helper function to format time
-    const formatTime = (milliseconds:number) => {
-        const totalSeconds = Math.floor(milliseconds / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-    };
 
     const endQuiz = () => {
         put(route("results.update",result.id), {
@@ -74,7 +69,7 @@ export default function ElapsedTime({ quiz, result } : MainProps) {
     return (
         <div className="bg-white p-6 rounded shadow">
             <h3 className="text-center text-lg font-medium mb-4">
-                Time Left : {timeLeft > 0 ? formatTime(timeLeft) : "Time's up!"}
+                Time Left :   {timeLeft}
             </h3>
             <div className="text-center space-y-4">
                 Start Time : {result.start_time} - End Time : {result.end_time}

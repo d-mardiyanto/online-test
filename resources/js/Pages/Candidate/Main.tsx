@@ -6,9 +6,6 @@ interface Candidate {
     id: number;
     name: string;
     email: string;
-    phone: string;
-    status: string;
-    photo?: string; // Optional field
 }
 
 // Define the type for the component props
@@ -40,7 +37,7 @@ export default function Main({ candidates }: MainProps) {
                                     className="p-4 bg-gray-100 border border-gray-300 rounded-lg shadow"
                                 >
                                     <img
-                                        src={candidate.photo || '/storage/user.png'}
+                                        src={'/storage/user.png'}
                                         alt={candidate.name}
                                         className="w-24 h-24 rounded-full mx-auto mb-4"
                                     />
@@ -49,12 +46,6 @@ export default function Main({ candidates }: MainProps) {
                                     </h3>
                                     <p className="text-gray-600 text-center">
                                         {candidate.email}
-                                    </p>
-                                    <p className="text-gray-500 text-sm text-center">
-                                        {candidate.phone}
-                                    </p>
-                                    <p className="text-gray-700 text-sm text-center mt-2">
-                                        Status: {candidate.status}
                                     </p>
                                     {/* View Profile Button */}
                                     <div className="mt-4 text-center">

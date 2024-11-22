@@ -9,6 +9,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Validation\Rules;
 
@@ -24,10 +25,22 @@ class QuizController extends Controller
      */
     public function index()
     {
-        $quizzes = Quizzes::all();
-        $data = [
-            'quizzes'=>$quizzes
-        ];
+        if(Auth::user()->roles=='Candidate'){
+            $userId = auth()->id();
+
+            $quizzes = Quizzes::with('results')->get()->map(function ($quiz) use ($userId) {
+                $quiz->status = $quiz->results->where('user_id', $userId)->isNotEmpty() ? 'Done' : 'Not Done';
+                return $quiz;
+            });
+            $data = [
+                'quizzes'=>$quizzes
+            ];
+        }else{
+            $quizzes = Quizzes::all();
+            $data = [
+                'quizzes'=>$quizzes
+            ];
+        }
         return Inertia::render('Quiz/Main',$data);
     }
 

@@ -44,26 +44,40 @@ class AnswerController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'quiz_id' => 'required|integer|exists:quizzes,id',
-            'question_id' => 'required|integer|exists:questions,id',
-            'user_id' => 'required|integer|exists:users,id',
-            'answer' => 'required|string',
+            'answers' => 'required|array',
+            'answers.*.question_id' => 'required|integer|exists:questions,id',
+            'answers.*.answer' => 'required', // Validates both string and array answers
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            // return response()->json($validator->errors(), 422);
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        Answers::create([
-            'quiz_id' => $request->quiz_id,
-            'question_id' => $request->question_id,
-            'user_id' => $request->user_id,
-            'answer' => json_encode($request->answer),
-        ]);
+        $userId = auth()->id();
+        $quizId = $request->input('quiz_id');
+        $answers = $request->input('answers');
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Answer stored !',
-        ]);
+        // Format answers for batch insert
+        $formattedAnswers = collect($answers)->map(function ($answer) use ($userId, $quizId) {
+            return [
+                'quiz_id' => $quizId,
+                'question_id' => $answer['question_id'],
+                'user_id' => $userId,
+                'answer' => json_encode(
+                    is_array($answer['answer']) ? $answer['answer'] : [$answer['answer']]
+                ), 
+            ];
+        })->toArray();
+
+        Answers::insert($formattedAnswers);
+
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Answers submitted successfully!',
+        // ]);
+         return redirect()->route('results')
+            ->with('success', 'Successfully Submitted !');
     }
 
     /**
@@ -95,7 +109,7 @@ class AnswerController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'quiz_id' => 'required|integer|exists:quizzes,id',
-            'question_id' => 'required|integer|exists:questions,id',
+            'question_id' => 'required',
             'user_id' => 'required|integer|exists:users,id',
             'answer' => 'required|string',
         ]);
@@ -109,7 +123,7 @@ class AnswerController extends Controller
             'quiz_id' => $request->quiz_id,
             'question_id' => $request->question_id,
             'user_id' => $request->user_id,
-            'answer' => json_encode($request->answer),
+            'answer' => $request->answer,
         ]);
 
         return response()->json([

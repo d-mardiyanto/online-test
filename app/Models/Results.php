@@ -8,6 +8,7 @@ class Results extends Model
 {
     protected $fillable = [
         'quiz_id',
+        'user_id',
         'work_date',
         'start_time',
         'end_time',
@@ -17,6 +18,12 @@ class Results extends Model
     // Relationship with Quiz
     public function quiz()
     {
-        return $this->belongsTo(Quiz::class);
+        return $this->belongsTo(Quizzes::class,'quiz_id');
+    }
+
+    // Relationship to the user
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

@@ -4,10 +4,12 @@ import { FormEventHandler, useState } from 'react';
 
 interface Quiz {
     id: number;
+    user_id:number;
     title: string;
     start_date: string;
     time_limit: number;
     pass_mark: number;
+    status:string;
 }
 
 // Define the type for the component props
@@ -99,12 +101,20 @@ export default function Main({ quizzes } : MainProps) {
                                         </div>
                                     ) : (
                                         <div className="mt-4 text-center">
-                                            <Link
-                                                href={`/answer/${quiz.id}/edit`}
-                                                className="me-1 inline-block px-4 py-2 text-sm font-medium text-white bg-green-600 rounded hover:bg-blue-700"
-                                            >
-                                                Start
-                                            </Link>
+                                                {
+                                                    quiz.status=='Done' ? (
+                                                        <p className="text-sm text-center mt-2ext-gray-500">
+                                                            {quiz.status}
+                                                        </p>
+                                                    ) : (
+                                                        <Link
+                                                            href={`/answer/${quiz.id}/edit`}
+                                                            className="me-1 inline-block px-4 py-2 text-sm font-medium text-white bg-green-600 rounded hover:bg-blue-700"
+                                                        >
+                                                            Start
+                                                        </Link>
+                                                    )
+                                                }
                                         </div>
                                     )}
                                     

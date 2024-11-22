@@ -44,8 +44,8 @@ class QuestionsController extends Controller
             'type' => 'required|string',
             'order_number' => 'required|integer',
             'content' => 'required|string',
-            'options' => 'nullable|array',
-            'correct_answer' => 'required|string',
+            'options' => 'required',
+            'correct_answer' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -53,13 +53,16 @@ class QuestionsController extends Controller
             // return redirect()->back()->withErrors($validator)->withInput();
         }
 
+        // $rawOptions= json_encode($request->options);
+        // $decodedOptions = json_decode($rawOptions, true);
+
         Questions::create([
             'quiz_id' => $request->quiz_id,
             'type' => $request->type,
             'order_number' => $request->order_number,
             'content' => $request->content,
-            'options' => json_encode($request->options), // Store options as JSON
-            'correct_answer' => json($request->correct_answer),
+            'options' => $request->options,
+            'correct_answer' => $request->correct_answer,
         ]);
 
         return redirect()->back()

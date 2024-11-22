@@ -42,7 +42,7 @@ class ResultController extends Controller
             foreach ($quizAnswers as $answer) {
                 $quiz = $answer->quiz;
                 $result_header = $answer->result;
-                $correctAnswer = json_decode($answer->question->correct_answer,TRUE);
+                $correctAnswer = $answer->question->correct_answer;
                 $userAnswer = $answer->answer;
 
                 // Check if the user's answer is correct
@@ -85,28 +85,24 @@ class ResultController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'quiz_id'   => 'required|exists:quizzes,id',
-            'work_date' => 'required|date',
-            'start_time'=> 'required|date_format:H:i',
-            'end_time'  => 'nullable|date_format:H:i|after:start_time',
-            'score'     => 'nullable|integer|min:0',
+            'work_date' => 'required',
+            'start_time'=> 'required',
         ]);
 
         if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
+            // return response()->json($validator->errors(), 422);
+            return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        Results::create([
+        $result = Results::create([
             'quiz_id' => $request->quiz_id,
+            'user_id' => auth()->id(),
             'work_date' => $request->work_date,
             'start_time' => $request->start_time,
-            'end_time' => $request->end_time,
-            'score' => $request->score,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Work Log created successfully !',
-        ]);
+         return redirect()->route('results.edit',$result->id)
+            ->with('success', 'Test Start !');
     }
 
     /**
@@ -139,11 +135,7 @@ class ResultController extends Controller
     public function update(Request $request, string $id)
     {
         $validator = Validator::make($request->all(), [
-            'quiz_id'   => 'required|exists:quizzes,id',
-            'work_date' => 'required|date',
-            'start_time'=> 'required|date_format:H:i',
-            'end_time'  => 'required|date_format:H:i',
-            'score'     => 'required|integer|min:0',
+            'end_time'  => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -152,11 +144,7 @@ class ResultController extends Controller
 
         $result = Results::find($id);
         $result->update([
-            'quiz_id'   => $request->quiz_id,
-            'work_date' => $request->work_date,
-            'start_time'=> $request->start_time,
             'end_time'  => $request->end_time,
-            'score'     => $request->score,
         ]);
 
         return response()->json([

@@ -19,37 +19,18 @@ interface MainProps {
 }
 
 export default function StartTime({ quiz } : MainProps) {
+    // Get current date and time
+    const now = new Date();
+    const currentDate = now.toISOString().split('T')[0]; // YYYY-MM-DD format
+    const currentTime = now.toTimeString().split(' ')[0]; // HH:MM:SS format
+
     const { data, setData, post, processing, errors, reset } = useForm({
         quiz_id: quiz.id,
-        work_date: "", // Default to single choice
-        start_time: "",
+        work_date: currentDate, // Current date
+        start_time: currentTime, // Current time
         end_time: "",
         score: "",
     });
-    const [timeLeft, setTimeLeft] = useState<number>(0);
-    // Initialize time left based on quiz expiration date and time limit
-    // Timer logic: Calculate remaining time based on quiz.time_limit
-    useEffect(() => {
-        const endTime = Date.now() + quiz.time_limit * 60 * 1000; // Dynamic: quiz.time_limit in minutes
-
-        const interval = setInterval(() => {
-            const remainingTime = endTime - Date.now();
-            setTimeLeft(remainingTime > 0 ? remainingTime : 0);
-            if (remainingTime <= 0) {
-                clearInterval(interval); // Stop timer if time runs out
-            }
-        }, 1000);
-
-        return () => clearInterval(interval); // Cleanup interval on component unmount
-    }, [quiz.time_limit]);
-
-    // Helper function to format time
-    const formatTime = (milliseconds:number) => {
-        const totalSeconds = Math.floor(milliseconds / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
-        const seconds = totalSeconds % 60;
-        return `${minutes}:${seconds.toString().padStart(2, "0")}`;
-    };
 
     const startQuiz: FormEventHandler = (e) => {
         e.preventDefault();
@@ -61,7 +42,6 @@ export default function StartTime({ quiz } : MainProps) {
 
     return (
         <div className="bg-white p-6 rounded shadow">
-            <h3 className="text-lg font-medium mb-4">Time Left : {timeLeft > 0 ? formatTime(timeLeft) : "Time's up!"}</h3>
             <div className="text-center space-y-4">
                 Start Date : {quiz.start_date} - End Date :{quiz.exp_date} <br></br>
                 Time Limit : {quiz.time_limit} Minutes <br></br>

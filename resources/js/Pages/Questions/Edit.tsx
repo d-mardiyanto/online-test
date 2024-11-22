@@ -241,7 +241,7 @@ export default function QuestionForm({ quiz, questions } : MainProps) {
                                                     <input
                                                         type="radio"
                                                         name="correct_answer"
-                                                        value={value}
+                                                        value={index}
                                                         className="mr-2"
                                                         onChange={handleCorrectAnswerChange}
                                                     />
@@ -249,7 +249,7 @@ export default function QuestionForm({ quiz, questions } : MainProps) {
                                                     <input
                                                         type="checkbox"
                                                         name="correct_answer"
-                                                        value={value}
+                                                        value={index}
                                                         className="mr-2"
                                                         onChange={handleCheckboxAnswerChange}
                                                     />

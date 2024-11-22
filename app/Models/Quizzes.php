@@ -17,4 +17,8 @@ class Quizzes extends Model
         'created_by',
     ];
     
+    public function results()
+    {
+        return $this->hasMany(Results::class,'quiz_id');
+    }
 }

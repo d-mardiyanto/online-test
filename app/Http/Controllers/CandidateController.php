@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Candidates;
 use App\Models\Answers;
-use App\Models\Users;
+use App\Models\User;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -24,7 +24,7 @@ class CandidateController extends Controller
      */
     public function index()
     {
-        $candidates = Candidates::all();
+        $candidates = User::where('roles','Candidate')->get();
         $data = [
             'candidates'=>$candidates
         ];
@@ -109,10 +109,8 @@ class CandidateController extends Controller
      */
     public function edit(string $id)
     {
-        $candidate = Candidates::find($id);
-        $user = Users::where('email',$candidate->email)->first();
-        $answers = Answers::with('question')
-                    ->where('user_id',$user->id)->get(); // Fetch answers with related questions
+        $answers = Answers::with(['question','quiz','result'])
+                    ->where('user_id',$id)->get(); // Fetch answers with related questions
         $results = [];
 
         // Group answers by quizzes
@@ -124,7 +122,9 @@ class CandidateController extends Controller
             $wrongCount = 0;
 
             foreach ($quizAnswers as $answer) {
-                $correctAnswer = json_decode($answer->question->correct_answer,TRUE);
+                $quiz = $answer->quiz;
+                $result_header = $answer->result;
+                $correctAnswer = $answer->question->correct_answer;
                 $userAnswer = $answer->answer;
 
                 // Check if the user's answer is correct
@@ -139,6 +139,8 @@ class CandidateController extends Controller
 
             // Save results for this quiz
             $results[$quizId] = [
+                'quiz' => $quiz,
+                'header' => $result_header,
                 'score' => $score,
                 'correct' => $correctCount,
                 'wrong' => $wrongCount,
