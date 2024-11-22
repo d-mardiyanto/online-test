@@ -161,16 +161,16 @@ export default function Edit({ quiz }: MainProps) {
                                     <button
                                         type="submit"
                                         onClick={() => setAction("save")}
-                                        className="me-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                        className="me-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-blue-700"
                                     >
-                                        Save Quiz
+                                        Update Quiz
                                     </button>
                                     <button
                                         type="submit"
                                         onClick={() => setAction("save_and_add_questions")}
-                                        className="px-4 py-2 bg-green-600 text-white rounded hover:bg-blue-700"
+                                        className="px-4 py-2 bg-cyan-600 text-white rounded hover:bg-blue-700"
                                     >
-                                        Save Quiz and Add Question
+                                        Update Quiz and Add Question
                                     </button>
                                 </div>
                             </form>

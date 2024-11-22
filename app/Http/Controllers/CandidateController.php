@@ -3,6 +3,8 @@
 namespace App\Http\Controllers;
 
 use App\Models\Candidates;
+use App\Models\Answers;
+use App\Models\Users;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\RedirectResponse;
@@ -108,8 +110,43 @@ class CandidateController extends Controller
     public function edit(string $id)
     {
         $candidate = Candidates::find($id);
+        $user = Users::where('email',$candidate->email)->first();
+        $answers = Answers::with('question')
+                    ->where('user_id',$user->id)->get(); // Fetch answers with related questions
+        $results = [];
+
+        // Group answers by quizzes
+        $groupedAnswers = $answers->groupBy('quiz_id');
+
+        foreach ($groupedAnswers as $quizId => $quizAnswers) {
+            $score = 0;
+            $correctCount = 0;
+            $wrongCount = 0;
+
+            foreach ($quizAnswers as $answer) {
+                $correctAnswer = json_decode($answer->question->correct_answer,TRUE);
+                $userAnswer = $answer->answer;
+
+                // Check if the user's answer is correct
+                if ($userAnswer == $correctAnswer) {
+                    $score += 5; // Add points
+                    $correctCount++; // Count correct answers
+                } else {
+                    $score -= 3; // Subtract points
+                    $wrongCount++; // Count wrong answers
+                }
+            }
+
+            // Save results for this quiz
+            $results[$quizId] = [
+                'score' => $score,
+                'correct' => $correctCount,
+                'wrong' => $wrongCount,
+            ];
+        }
         $data = [
-            'candidate'=>$candidate
+            'candidate'=>$candidate,
+            'results'=>$results
         ];
         return Inertia::render('Candidate/Edit',$data);
     }

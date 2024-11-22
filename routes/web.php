@@ -55,6 +55,8 @@ Route::middleware('auth')->group(function () {
     ->names([
         'index'=>'results'
     ]);
+
+    Route::get('results/scores/{id}',[ResultController::class,'calculateScores'])->name('results.scores');
 });
 
 

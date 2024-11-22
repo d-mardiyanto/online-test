@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Answer;
+use App\Models\Answers;
 use App\Models\Results;
 use App\Models\Quizzes;
 use App\Models\Questions;
@@ -27,12 +27,45 @@ class ResultController extends Controller
      */
     public function index()
     {
-        $results = Results::select('results.*', 'quizzes.title','quizzes.pass_mark','quizzes.time_limit')
-                ->join('quizzes', 'results.quiz_id', '=', 'quizzes.id')
-                ->where('results.user_id', '=', auth()->id())
-                ->get();
+        $answers = Answers::with(['question','quiz','result'])
+                    ->where('user_id',auth()->id())->get(); // Fetch answers with related questions
+        $results = [];
+
+        // Group answers by quizzes
+        $groupedAnswers = $answers->groupBy('quiz_id');
+
+        foreach ($groupedAnswers as $quizId => $quizAnswers) {
+            $score = 0;
+            $correctCount = 0;
+            $wrongCount = 0;
+
+            foreach ($quizAnswers as $answer) {
+                $quiz = $answer->quiz;
+                $result_header = $answer->result;
+                $correctAnswer = json_decode($answer->question->correct_answer,TRUE);
+                $userAnswer = $answer->answer;
+
+                // Check if the user's answer is correct
+                if ($userAnswer == $correctAnswer) {
+                    $score += 5; // Add points
+                    $correctCount++; // Count correct answers
+                } else {
+                    $score -= 3; // Subtract points
+                    $wrongCount++; // Count wrong answers
+                }
+            }
+
+            // Save results for this quiz
+            $results[$quizId] = [
+                'quiz' => $quiz,
+                'header' => $result_header,
+                'score' => $score,
+                'correct' => $correctCount,
+                'wrong' => $wrongCount,
+            ];
+        }
         $data = [
-            'results' => $results
+            'results' => $results,
         ];
         return Inertia::render('Results',$data);
     }
@@ -145,9 +178,10 @@ class ResultController extends Controller
         ]);
     }
 
-    public function calculateScores()
+    public function calculateScores(string $id)
     {
-        $answers = Answers::with('question')->get(); // Fetch answers with related questions
+        $answers = Answers::with('question')
+                    ->where('user_id',$id)->get(); // Fetch answers with related questions
         $results = [];
 
         // Group answers by quizzes
@@ -159,8 +193,8 @@ class ResultController extends Controller
             $wrongCount = 0;
 
             foreach ($quizAnswers as $answer) {
-                $correctAnswer = json_decode($answer->question->correct_answer);
-                $userAnswer = json_decode($answer->answer);
+                $correctAnswer = json_decode($answer->question->correct_answer,TRUE);
+                $userAnswer = $answer->answer;
 
                 // Check if the user's answer is correct
                 if ($userAnswer == $correctAnswer) {

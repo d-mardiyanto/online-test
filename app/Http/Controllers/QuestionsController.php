@@ -49,8 +49,8 @@ class QuestionsController extends Controller
         ]);
 
         if ($validator->fails()) {
-            // return response()->json($validator->errors(), 422);
-            return redirect()->back()->withErrors($validator)->withInput();
+            return response()->json($validator->errors(), 422);
+            // return redirect()->back()->withErrors($validator)->withInput();
         }
 
         Questions::create([
@@ -59,7 +59,7 @@ class QuestionsController extends Controller
             'order_number' => $request->order_number,
             'content' => $request->content,
             'options' => json_encode($request->options), // Store options as JSON
-            'correct_answer' => $request->correct_answer,
+            'correct_answer' => json($request->correct_answer),
         ]);
 
         return redirect()->back()

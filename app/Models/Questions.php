@@ -18,6 +18,7 @@ class Questions extends Model
     // If 'options' is JSON, you can cast it
     protected $casts = [
         'options' => 'array',
+        'correct_answer' => 'array'
     ];
 
     // Relationship with Quiz

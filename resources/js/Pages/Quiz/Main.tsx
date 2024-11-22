@@ -54,12 +54,14 @@ export default function Main({ quizzes } : MainProps) {
                             Welcome, Admin! Here are the Quizzes
                         </div>
                         <div className="p-6 text-gray-900">
-                            <Link
-                                href={`/quiz/create`}
-                                className="mx-1 inline-block px-4 py-2 text-sm font-medium text-white bg-green-600 rounded hover:bg-blue-700"
-                            >
-                                Add Quiz
-                            </Link>
+                            {user.roles == 'Administrator' ? (
+                                <Link
+                                    href={`/quiz/create`}
+                                    className="mx-1 inline-block px-4 py-2 text-sm font-medium text-white bg-green-600 rounded hover:bg-blue-700"
+                                >
+                                    Add Quiz
+                                </Link>
+                            ) : ''}
                         </div>
                         <div className="p-4 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                             {quizzes.map((quiz) => (

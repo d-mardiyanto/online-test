@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Answer;
+use App\Models\Answers;
 use App\Models\Results;
 use App\Models\Quizzes;
 use App\Models\Questions;
@@ -53,7 +53,7 @@ class AnswerController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        Answer::create([
+        Answers::create([
             'quiz_id' => $request->quiz_id,
             'question_id' => $request->question_id,
             'user_id' => $request->user_id,
@@ -104,7 +104,7 @@ class AnswerController extends Controller
             return response()->json($validator->errors(), 422);
         }
 
-        $answer = Answer::find($id);
+        $answer = Answers::find($id);
         $answer->update([
             'quiz_id' => $request->quiz_id,
             'question_id' => $request->question_id,
@@ -123,7 +123,7 @@ class AnswerController extends Controller
      */
     public function destroy(string $id)
     {
-        $answer = Answer::find($id);
+        $answer = Answers::find($id);
         $answer->delete();
         
         return response()->json([

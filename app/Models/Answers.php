@@ -25,4 +25,8 @@ class Answers extends Model
     public function quiz() {
         return $this->belongsTo(Quizzes::class);
     }
+
+    public function result() {
+        return $this->belongsTo(Results::class);
+    }
 }
