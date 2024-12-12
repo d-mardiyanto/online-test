@@ -59,17 +59,8 @@ export default function QuestionForm({ quiz, questions, result,answer} : MainPro
 
             <div className="py-12">
                 <div className="mx-auto max-w-7xl sm:px-6 lg:px-8">
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                        {/* Left Side: Form */}
-                        <div className="bg-white p-6 rounded shadow">
-
-                            <h3 className="text-lg font-medium mb-4">Questions - {quiz.title}</h3>
-                            <StartQuiz quiz={quiz} questions={questions} answers={answer} />
-                        </div>
-
-                        {/* Right Side: Accordion */}
-                        <ElapsedTime quiz={quiz} result={result} />
-                    </div>
+                    <StartQuiz quiz={quiz} questions={questions} answers={answer} result={result} />
+                    
                 </div>
             </div>
         </AuthenticatedLayout>

@@ -36,6 +36,7 @@ export default function MatchInput() {
                     value={data.input1}
                     onChange={handleInputChange}
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder='Enter Some Words, Example : ABCDEEM'
                 />
             </div>
 
@@ -49,6 +50,7 @@ export default function MatchInput() {
                     value={data.input2}
                     onChange={handleInputChange}
                     className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    placeholder='Enter Anything Here, Example : AWESOME'
                 />
             </div>
 

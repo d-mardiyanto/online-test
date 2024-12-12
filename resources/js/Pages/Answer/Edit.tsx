@@ -3,7 +3,6 @@ import { Head, Link, useForm } from '@inertiajs/react';
 import { FormEventHandler, useState,useEffect } from 'react';
 import StartTime from './Partials/StartTime';
 import MatchInput from './Partials/MatchInput';
-import StartQuiz from './Partials/StartQuiz';
 
 interface Quiz {
     id: number;

@@ -71,10 +71,6 @@ class AnswerController extends Controller
 
         Answers::insert($formattedAnswers);
 
-        // return response()->json([
-        //     'success' => true,
-        //     'message' => 'Answers submitted successfully!',
-        // ]);
          return redirect()->route('results')
             ->with('success', 'Successfully Submitted !');
     }

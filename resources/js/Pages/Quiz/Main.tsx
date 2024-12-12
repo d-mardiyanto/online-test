@@ -7,6 +7,7 @@ interface Quiz {
     user_id:number;
     title: string;
     start_date: string;
+    exp_date: string;
     time_limit: number;
     pass_mark: number;
     status:string;
@@ -75,10 +76,13 @@ export default function Main({ quizzes } : MainProps) {
                                         {quiz.title}
                                     </h3>
                                     <p className="text-gray-600 text-center">
-                                        {quiz.start_date}
+                                        Start : {quiz.start_date}
+                                    </p>
+                                    <p className="text-gray-600 text-center">
+                                        End : {quiz.exp_date}
                                     </p>
                                     <p className="text-gray-500 text-sm text-center">
-                                        {quiz.time_limit}
+                                       Time Limit : {quiz.time_limit} Minute
                                     </p>
                                     <p className="text-gray-700 text-sm text-center mt-2">
                                         Pass Mark: {quiz.pass_mark}
@@ -102,17 +106,17 @@ export default function Main({ quizzes } : MainProps) {
                                     ) : (
                                         <div className="mt-4 text-center">
                                                 {
-                                                    quiz.status=='Done' ? (
-                                                        <p className="text-sm text-center mt-2ext-gray-500">
-                                                            {quiz.status}
-                                                        </p>
-                                                    ) : (
+                                                    quiz.status=='Not Done' ? (
                                                         <Link
                                                             href={`/answer/${quiz.id}/edit`}
                                                             className="me-1 inline-block px-4 py-2 text-sm font-medium text-white bg-green-600 rounded hover:bg-blue-700"
                                                         >
                                                             Start
                                                         </Link>
+                                                    ) : (
+                                                        <p className="text-sm text-center mt-2ext-gray-500">
+                                                            {quiz.status}
+                                                        </p>
                                                     )
                                                 }
                                         </div>

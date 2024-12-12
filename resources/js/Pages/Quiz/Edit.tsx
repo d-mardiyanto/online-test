@@ -21,7 +21,7 @@ interface MainProps {
 }
 
 export default function Edit({ quiz }: MainProps) {
-    const { data, setData, patch, processing, errors, reset } = useForm({
+    const { data, setData, patch, processing, errors, reset, delete: destroy } = useForm({
         title: quiz.title,
         description: quiz.description,
         start_date: quiz.start_date,
@@ -43,11 +43,18 @@ export default function Edit({ quiz }: MainProps) {
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
-
-        patch(route('quiz.update', quiz.id), {
-            onFinish: () => reset(),
-        });
+        if (action === "delete") {
+            destroy(route('quiz.destroy', quiz.id), {
+                onFinish: () => reset(),
+            });
+        } else {
+            patch(route('quiz.update', quiz.id), {
+                onFinish: () => reset(),
+            });
+        }
+        
     };
+    
 
     return (
         <AuthenticatedLayout
@@ -164,6 +171,13 @@ export default function Edit({ quiz }: MainProps) {
                                         className="me-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-blue-700"
                                     >
                                         Update Quiz
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        onClick={() => setAction("delete")}
+                                        className="me-1 px-4 py-2 bg-red-600 text-white rounded hover:bg-yellow-700"
+                                    >
+                                        Delete Quiz
                                     </button>
                                 </div>
                             </form>

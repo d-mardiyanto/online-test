@@ -38,11 +38,10 @@ class CandidateController extends Controller
                     ->where('user_id',$id)->get(); // Fetch answers with related questions
         $results = [];
 
-        // Group answers by quizzes
         $groupedAnswers = $answers->groupBy('quiz_id');
+        $score = 100;
 
         foreach ($groupedAnswers as $quizId => $quizAnswers) {
-            $score = 0;
             $correctCount = 0;
             $wrongCount = 0;
 
@@ -54,19 +53,18 @@ class CandidateController extends Controller
 
                 // Check if the user's answer is correct
                 if ($userAnswer == $correctAnswer) {
-                    $score += 5; // Add points
                     $correctCount++; // Count correct answers
                 } else {
-                    $score -= 3; // Subtract points
                     $wrongCount++; // Count wrong answers
                 }
             }
-
-            // Save results for this quiz
+            $nSoal = $correctCount + $wrongCount; // Jumlah Seluruh Soal
+            $pn = $score/$nSoal; // Point Per Soal
+            $tn = $pn * $correctCount; // Score Akhir
             $results[$quizId] = [
                 'quiz' => $quiz,
                 'header' => $result_header,
-                'score' => $score,
+                'score' => $tn,
                 'correct' => $correctCount,
                 'wrong' => $wrongCount,
             ];

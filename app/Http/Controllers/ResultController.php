@@ -33,9 +33,9 @@ class ResultController extends Controller
 
         // Group answers by quizzes
         $groupedAnswers = $answers->groupBy('quiz_id');
+        $score = 100;
 
         foreach ($groupedAnswers as $quizId => $quizAnswers) {
-            $score = 0;
             $correctCount = 0;
             $wrongCount = 0;
 
@@ -47,19 +47,18 @@ class ResultController extends Controller
 
                 // Check if the user's answer is correct
                 if ($userAnswer == $correctAnswer) {
-                    $score += 5; // Add points
                     $correctCount++; // Count correct answers
                 } else {
-                    $score -= 3; // Subtract points
                     $wrongCount++; // Count wrong answers
                 }
             }
-
-            // Save results for this quiz
+            $nSoal = $correctCount + $wrongCount; // Jumlah Seluruh Soal
+            $pn = $score/$nSoal; // Point Per Soal
+            $tn = $pn * $correctCount; // Score Akhir
             $results[$quizId] = [
                 'quiz' => $quiz,
                 'header' => $result_header,
-                'score' => $score,
+                'score' => $tn,
                 'correct' => $correctCount,
                 'wrong' => $wrongCount,
             ];
@@ -101,7 +100,7 @@ class ResultController extends Controller
             'start_time' => $request->start_time,
         ]);
 
-         return redirect()->route('results.edit',$result->id)
+        return redirect()->route('results.edit',$result->id)
             ->with('success', 'Test Start !');
     }
 
@@ -134,23 +133,13 @@ class ResultController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $validator = Validator::make($request->all(), [
-            'end_time'  => 'required',
-        ]);
-
-        if ($validator->fails()) {
-            return response()->json($validator->errors(), 422);
-        }
-
         $result = Results::find($id);
         $result->update([
-            'end_time'  => $request->end_time,
+            'end_time'  => Carbon::now()->format('H:i')
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Work Log Updated successfully !',
-        ]);
+        return redirect()->route('results')
+            ->with('success', 'Test End !');
     }
 
     /**
@@ -174,37 +163,38 @@ class ResultController extends Controller
 
         // Group answers by quizzes
         $groupedAnswers = $answers->groupBy('quiz_id');
+        $score = 100;
 
         foreach ($groupedAnswers as $quizId => $quizAnswers) {
-            $score = 0;
             $correctCount = 0;
             $wrongCount = 0;
 
             foreach ($quizAnswers as $answer) {
-                $correctAnswer = json_decode($answer->question->correct_answer,TRUE);
+                $quiz = $answer->quiz;
+                $result_header = $answer->result;
+                $correctAnswer = $answer->question->correct_answer;
                 $userAnswer = $answer->answer;
 
                 // Check if the user's answer is correct
                 if ($userAnswer == $correctAnswer) {
-                    $score += 5; // Add points
                     $correctCount++; // Count correct answers
                 } else {
-                    $score -= 3; // Subtract points
                     $wrongCount++; // Count wrong answers
                 }
             }
-
-            // Save results for this quiz
+            $nSoal = $correctCount + $wrongCount; // Jumlah Seluruh Soal
+            $pn = $score/$nSoal; // Point Per Soal
+            $tn = $pn * $correctCount; // Score Akhir
             $results[$quizId] = [
-                'score' => $score,
+                'quiz' => $quiz,
+                'header' => $result_header,
+                'score' => $tn,
                 'correct' => $correctCount,
                 'wrong' => $wrongCount,
             ];
         }
-
-        // Pass data to the frontend
-        return response()->json([
+        $data = [
             'results' => $results,
-        ]);
+        ];
     }
 }

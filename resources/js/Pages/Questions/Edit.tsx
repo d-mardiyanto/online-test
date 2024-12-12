@@ -1,6 +1,6 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
-import { FormEventHandler, useState, ChangeEvent } from 'react';
+import { FormEventHandler, useState, ChangeEvent, useEffect } from 'react';
 
 interface Quiz {
     id: number;
@@ -37,8 +37,9 @@ interface CustomPageProps {
 
 interface FormState {
     quiz_id: number;
+    question_id: string;
     type: string;
-    order_number: string;
+    order_number: number;
     content: string;
     options: Record<string, string>; // Explicitly define options as an object with string keys and values
     correct_answer: string;
@@ -47,15 +48,19 @@ interface FormState {
 export default function QuestionForm({ quiz, questions } : MainProps) {
     const { errors,flash } = usePage().props as CustomPageProps;
     
-    const { data, setData, post, processing, reset } = useForm<FormState>({
+    const { data, setData, post,patch, processing, reset, delete:destroy } = useForm<FormState>({
         quiz_id: quiz.id,
+        question_id: "",
         type: "radio", // Default to single choice
-        order_number: "",
+        order_number: questions.length + 1,
         content: "",
-        options: {}, // Array to handle multiple options
-        correct_answer: "", // Dynamic for radio or checkbox
+        options: {} as Record<string, string>, 
+        correct_answer: "", 
     });
 
+    const [action, setAction] = useState("");
+    const [editingQuestion, setEditingQuestion] = useState<null | Questions>(null);
+     
     // Generate letters (A, B, C, ...)
     const getLetter = (index: number) => String.fromCharCode(65 + index);
 
@@ -117,14 +122,61 @@ export default function QuestionForm({ quiz, questions } : MainProps) {
         });
     };
 
+    const handleEdit = (question : Questions) => {
+        setEditingQuestion(question);
+        setData((prevData : any) => ({
+            ...prevData,
+            question_id: question.id.toString(),
+            type: question.type,
+            order_number: question.order_number.toString(),
+            content: question.content,
+            options: question.options,
+            correct_answer: question.correct_answer,
+        }));
+        console.log(question.correct_answer[0]);
+    };
+
+    const cancelEdit = () => {
+        setEditingQuestion(null);
+        reset(); // Clears the form
+    };
+
 
     const submit: FormEventHandler = (e) => {
         e.preventDefault();
 
-        post(route('questions.store'), {
-            onFinish: () => reset(),
-        });
+        if (action === "save") {
+            post(route('questions.store'), {
+                onFinish: () => {
+                    reset();
+                    setData((prevData: any) => ({
+                        ...prevData,
+                        order_number: questions.length + 2,
+                    }));
+                },
+            });
+        } else if(action==="update") {
+            patch(route('questions.update',data.question_id), {
+                onFinish: () => {
+                    reset();
+                    setEditingQuestion(null);
+                    
+                },
+            });
+        } else{
+            destroy(route('questions.destroy', data.question_id), {
+                onFinish: () => {
+                    reset();
+                    setEditingQuestion(null);
+                    setData((prevData: any) => ({
+                        ...prevData,
+                        order_number: questions.length,
+                    }));
+                },
+            });
+        }
     };
+    
 
     return (
         <AuthenticatedLayout
@@ -242,6 +294,7 @@ export default function QuestionForm({ quiz, questions } : MainProps) {
                                                         type="radio"
                                                         name="correct_answer"
                                                         value={index}
+                                                        checked={index === data.correct_answer[0]}
                                                         className="mr-2"
                                                         onChange={handleCorrectAnswerChange}
                                                     />
@@ -250,6 +303,7 @@ export default function QuestionForm({ quiz, questions } : MainProps) {
                                                         type="checkbox"
                                                         name="correct_answer"
                                                         value={index}
+                                                        checked={data.correct_answer.includes(index)}
                                                         className="mr-2"
                                                         onChange={handleCheckboxAnswerChange}
                                                     />
@@ -260,21 +314,49 @@ export default function QuestionForm({ quiz, questions } : MainProps) {
                                     </div>
                                 </div>
 
-                                <button
-                                    type="submit"
-                                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                                >
-                                    Save Question
-                                </button>
+                                {!editingQuestion && (
+                                    <button
+                                        type="submit"
+                                        onClick={() => setAction("save")}
+                                        className="me-1 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+                                    >
+                                        Save
+                                    </button>
+                                )}
+                                {editingQuestion && (
+                                    <>
+                                        <button
+                                            type="submit"
+                                            onClick={() => setAction("update")}
+                                            className="me-1 px-4 py-2 bg-green-600 text-white rounded hover:bg-blue-700"
+                                        >
+                                            Update
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            onClick={() => setAction("delete")}
+                                            className="me-1 px-4 py-2 bg-red-600 text-white rounded hover:bg-grey-700"
+                                        >
+                                            Delete
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={cancelEdit}
+                                            className="me-1 px-4 py-2 bg-yellow-600 text-white rounded hover:bg-grey-700"
+                                        >
+                                            Cancel
+                                        </button>
+                                    </>
+                                )}
                             </form>
                         </div>
 
                         {/* Right Side: Accordion */}
                         <div className="bg-white p-6 rounded shadow">
-                            <h3 className="text-lg font-medium mb-4">Questions</h3>
+                            <h3 className="text-lg font-medium mb-4">Answers</h3>
                             <div className="space-y-4">
                                 {questions.map((question) => {
-                                    console.log(question.options);
+                                    // console.log(question.options);
                                     const options = question.options;
                                     return (
                                             <div
@@ -309,6 +391,13 @@ export default function QuestionForm({ quiz, questions } : MainProps) {
                                                     Correct Answer : 
                                                     {question.correct_answer}
                                                 </p>
+                                                <button
+                                                    type='button'
+                                                    onClick={() => handleEdit(question)}
+                                                    className="px-4 py-2 text-white bg-yellow-500 rounded hover:bg-yellow-600"
+                                                >
+                                                    Edit
+                                                </button>
                                             </div>
                                         )
                                     }

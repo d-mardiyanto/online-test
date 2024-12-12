@@ -27,9 +27,16 @@ class QuizController extends Controller
     {
         if(Auth::user()->roles=='Candidate'){
             $userId = auth()->id();
-
+            
             $quizzes = Quizzes::with('results')->get()->map(function ($quiz) use ($userId) {
-                $quiz->status = $quiz->results->where('user_id', $userId)->isNotEmpty() ? 'Done' : 'Not Done';
+                $today = Carbon::now(); // Current date and time using Carbon
+                if ($quiz->start_date > $today) {
+                    $quiz->status = 'Cannot Start Quiz'; // Quiz hasn't started yet
+                } elseif ($quiz->exp_date < $today) {
+                    $quiz->status = 'Expire'; // Quiz has expired
+                } else {
+                    $quiz->status = $quiz->results->where('user_id', $userId)->isNotEmpty() ? 'Done' : 'Not Done'; // Quiz is ongoing
+                }
                 return $quiz;
             });
             $data = [
@@ -68,11 +75,10 @@ class QuizController extends Controller
         ]);
 
         if ($validator->fails()) {
-            // return response()->json($validator->errors(), 422);
-            return redirect()->back()->withErrors($validator)->withInput();
+            return response()->json($validator->errors(), 422);
         }
 
-        Quizzes::create([
+        $quiz = Quizzes::create([
             'title' => $request->title,
             'description' => $request->description,
             'start_date' => $request->start_date,
@@ -83,13 +89,8 @@ class QuizController extends Controller
             'created_by' => auth()->id(), // Assuming the authenticated user
         ]);
 
-        // return response()->json([
-        //     'success' => true,
-        //     'message' => 'Successfully Created Quiz Header!',
-        // ]);
-
-        return redirect()->route('quiz')
-            ->with('success', 'Quiz successfully created!');
+         return redirect()->route('quiz')
+                ->with('success', 'Quiz successfully created!');
     }
 
     /**
@@ -128,8 +129,8 @@ class QuizController extends Controller
         ]);
 
         if ($validator->fails()) {
-            // return response()->json($validator->errors(), 422);
-            return redirect()->back()->withErrors($validator)->withInput();
+            return response()->json($validator->errors(), 422);
+            // return redirect()->back()->withErrors($validator)->withInput();
         }
 
         $quiz = Quizzes::find($id);
@@ -145,11 +146,6 @@ class QuizController extends Controller
             'created_by'  => auth()->id(), // Assuming the authenticated user
         ]);
 
-        // return response()->json([
-        //     'success' => true,
-        //     'message' => 'Successfully Updated Quiz Header!',
-        // ]);
-
         return redirect()->route('quiz')
             ->with('success', 'Successfully Updated Quiz Header!');
     }
@@ -161,10 +157,6 @@ class QuizController extends Controller
     {
         $quiz = Quizzes::find($id);
         $quiz->delete();
-        // return response()->json([
-        //     'success' => true,
-        //     'message' => 'Successfully Deleted Quiz Header!',
-        // ]);
         return redirect()->route('quiz')
             ->with('success', 'Successfully Deleted Quiz Header!');
     }

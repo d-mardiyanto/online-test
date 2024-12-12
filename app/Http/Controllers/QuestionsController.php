@@ -53,9 +53,6 @@ class QuestionsController extends Controller
             // return redirect()->back()->withErrors($validator)->withInput();
         }
 
-        // $rawOptions= json_encode($request->options);
-        // $decodedOptions = json_decode($rawOptions, true);
-
         Questions::create([
             'quiz_id' => $request->quiz_id,
             'type' => $request->type,
@@ -106,8 +103,8 @@ class QuestionsController extends Controller
             'type' => 'required|string',
             'order_number' => 'required|integer',
             'content' => 'required|string',
-            'options' => 'nullable|array',
-            'correct_answer' => 'required|string',
+            'options' => 'required',
+            'correct_answer' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -117,18 +114,21 @@ class QuestionsController extends Controller
         $question = Questions::find($id);
 
         $question->update([
-            'quiz_id'       => $request->quiz_id,
-            'type'          => $request->type,
-            'order_number'  => $request->order_number,
-            'content'       => $request->content,
-            'options'       => json_encode($request->options), // Store options as JSON
+            'quiz_id'        => $request->quiz_id,
+            'type'           => $request->type,
+            'order_number'   => $request->order_number,
+            'content'        => $request->content,
+            'options'        => $request->options,
             'correct_answer' => $request->correct_answer,
         ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Question updated successfully !',
-        ]);
+        return redirect()->back()
+            ->with('success', 'Question created successfully !');
+
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Question updated successfully !',
+        // ]);
     }
 
     /**
@@ -138,9 +138,12 @@ class QuestionsController extends Controller
     {
         $question = Questions::find($id);
         $question->delete();
-        return response()->json([
-            'success' => true,
-            'message' => 'Question deleted !',
-        ]);
+        
+        return redirect()->back()
+            ->with('success', 'Question created successfully !');
+        // return response()->json([
+        //     'success' => true,
+        //     'message' => 'Question deleted !',
+        // ]);
     }
 }

@@ -47,14 +47,16 @@ export default function StartTime({ quiz } : MainProps) {
                 Time Limit : {quiz.time_limit} Minutes <br></br>
                 Pass Mark : {quiz.pass_mark}
             </div>
-            <form onSubmit={startQuiz}>
+            <form onSubmit={startQuiz} className="flex justify-center items-center">
                 <button
                     type="submit"
-                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mt-3"
+                    className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 mt-20"
                 >
                     Start Test
                 </button>
             </form>
+
+
         </div>
     );
 }
