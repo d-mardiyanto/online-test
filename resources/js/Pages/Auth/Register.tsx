@@ -25,12 +25,12 @@ export default function Register() {
     return (
         <GuestLayout>
             <Head title="Register" />
-            <div className="flex min-h-screen items-center justify-center bg-[#FAF3ED]">
-                <div className="grid grid-cols-2 w-[80%] bg-white shadow-lg rounded-md overflow-hidden">
+            <div className="flex items-center justify-center min-h-screen bg-gray-100">
+                <div className="grid sm:grid-cols-[1fr_2fr] grid-cols-1 w-[90%] sm:w-[80%] bg-white shadow-lg rounded-md overflow-hidden mx-auto">
                     {/* Left Panel */}
                     <div className="p-8 bg-[#FFF5EE]">
                         <h1 className="text-4xl font-bold text-[#C65D3D] mb-4">Online Test</h1>
-                        <p className="text-[#C65D3D] text-lg mb-8">Login Screen</p>
+                        <p className="text-[#C65D3D] text-lg mb-8">Registration Screen</p>
 
                         <form onSubmit={submit}>
                             <div className="mb-4">
